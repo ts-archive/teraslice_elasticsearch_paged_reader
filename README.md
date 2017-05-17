@@ -1,3 +1,11 @@
+# Reader - teraslice_paged_reader
+
+To install from the root of your teraslice instance.
+
+```
+npm install terascope/teraslice_paged_reader
+```
+
 # Description
 
 A reader for Elasticsearch based on normal paging mechanisms.
