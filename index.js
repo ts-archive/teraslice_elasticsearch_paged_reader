@@ -10,34 +10,12 @@
 
 var Promise = require('bluebird');
 
-/*
- * TODO: this code was copied from teraslice proper.
- * Implies there should be a better api for this purpose.
- */
-
-function getClient(context, config, type) {
-    var clientConfig = {};
-    clientConfig.type = type;
-
-    if (config && config.hasOwnProperty('connection')) {
-        clientConfig.endpoint = config.connection ? config.connection : 'default';
-        clientConfig.cached = config.connection_cache !== undefined ? config.connection_cache : true;
-
-    }
-    else {
-        clientConfig.endpoint = 'default';
-        clientConfig.cached = true;
-    }
-
-    return context.foundation.getConnection(clientConfig).client;
-}
-
 var parallelSlicers = false;
 
-function newSlicer(context, job, retryData) {
-    var opConfig = job.readerConfig;
-    var logger = context.logger;
-
+function newSlicer(context, executionContext, retryData, logger) {
+    const getOpConfig = context.apis.job_runner.getOpConfig;
+    const getClient = context.apis.op_runner.getClient;
+    const opConfig = getOpConfig(executionContext.config, 'elasticsearch_reader');
     var client = getClient(context, opConfig, 'elasticsearch');
 
     var from = opConfig.from;
@@ -119,7 +97,8 @@ console.log(err)
     });
 }
 
-function newReader(context, opConfig, jobConfig) {
+function newReader(context, opConfig, executionConfig) {
+    const getClient = context.apis.op_runner.getClient;
     var client = getClient(context, opConfig, 'elasticsearch');
     var size = opConfig.size;
     var sort = opConfig.sort;
